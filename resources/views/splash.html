@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link href="assets/css/custom.css" rel="stylesheet">
+<link href="assets/css/splash.css" rel="stylesheet">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+<style>
+#loginbutton{
+	background:url('http://www.3ntrance.com/fbhack/fb-connect-large.png');
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -50px;
+	margin-top: 100px;
+	width: 300px;
+	height: 40px;
+	cursor: pointer;	
+}
+</style>
+
+</head>
+<body>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=414034551944593";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<div id="mainwrapper">
+
+
+
+
+
+
+</div>
+
+<div id="loginbutton" onclick="FB.login(function(response){ if (response.authResponse){ window.location = '/profile'; } else { alert('Sorry!! Try again'); } })">
+</div>
+</body>
+</html>

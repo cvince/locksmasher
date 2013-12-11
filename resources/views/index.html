@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>LockSmasher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="/assets/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style>
+    <link href="/assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="/assets/css/custom.css" rel="stylesheet">
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/assets/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="/assets/ico/apple-touch-icon-57-precomposed.png">
+  
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="/async.js"></script>
+
+
+	<script>
+
+  function getQueryParams(qs) {
+    qs = qs.split("+").join(" ");
+    var params = {},
+        tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])]
+            = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
+  }
+
+  var $_GET = getQueryParams(document.location.search);
+
+	var selected = '';
+	$(document).ready(function() {
+
+		$.post('/lock');        
+		$("#frontdoor").on("click", function(event){
+			if (selected === 'frontdoor') { return; }
+			selected = 'frontdoor';
+
+			$(".lockcaption").html("House (Front Door)");
+			$("#lockimage").attr("src", "/assets/img/locked.png");
+			$(".locktext").html("Door is Locked");
+			$("#mainUnlockButton").slideDown(500);
+		});
+			
+		$("#mainUnlockButton").on("click", function(event){
+			if ($("#lockimage").attr("src") === "/assets/img/unlocked.png") {
+				$.post('/lock', { state: 'lock' }, function(x,y,c) {
+					$("#lockimage").attr("src", "/assets/img/locked.png");
+					$(".locktext").html("Door is Locked");					
+				});
+			} else {
+				$.post('/lock', { state: 'unlock' }, function(x,y,c) {
+					$("#lockimage").attr("src", "/assets/img/unlocked.png");
+					$(".locktext").html("Door is Unlocked");
+				});
+			}
+		});
+
+	}); // close doc ready
+	</script>
+
+  </head>
+
+  <body>
+    <div id="fb-root"></div>
+    <script>
+
+
+      window.fbAsyncInit = function() {
+
+
+
+    FB.init({
+      appId      : '414034551944593', // App ID
+      channelUrl : '//localhost/channel.html', // Channel File
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
+    });
+
+    // Additional initialization code here
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+
+      console.log('connected');
+      // the user is logged in and has authenticated your
+      // app, and response.authResponse supplies
+      // the user's ID, a valid access token, a signed
+      // request, and the time the access token 
+      // and signed request each expire
+      var uid = response.authResponse.userID;
+      var accessToken = response.authResponse.accessToken;
+      //} else if (response.status === 'not_authorized') {
+      // the user is logged in to Facebook,
+      // but has not authenticated your app
+
+      console.log(uid);
+      console.log(accessToken);
+
+      $.get('/friends', function(friends){
+
+      var obj = eval('{' + friends + '}');
+
+      async.forEach(obj, function(friend){
+       
+
+          var name = friend.name;
+          var pic = friend.pic_square;
+
+          var html = '<li><a href="/profile?id='+friend.uid+'"><img class="fbpic" src="'+pic+'" />'+name+'</a></li>';
+
+          $("#friendsList").append(html);
+
+          //itterator
+            }, function(){
+          // callback
+        });
+      });
+
+      
+        FB.api('/me', function(res){
+          var currentUserName = res.name;
+          $("#userNameTop").html(res.name);
+        
+
+      var userID = $_GET["id"];
+
+      if (userID) {
+        FB.api("/"+userID, function(res){
+          $("#personName").html(res.name);
+        });
+      } else {
+          $("#personName").html(res.name);
+
+      }
+        });
+      
+      } else {
+      console.log('Not logged in');
+      window.location = '/';
+      // the user isn't logged in to Facebook.
+      }
+ 
+    
+   });
+
+
+  };
+
+  // Load the SDK Asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
+</script>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">LockSmasher</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="http://localhost:12340/profile">Home</a></li>
+            </ul>
+            <p class="navbar-text pull-right">Logged in as <a id="userNameTop" href="#"></a></p>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+
+      <h1>Home of <span id="personName"></span>!</h1>
+
+      <div class="row-fluid">
+        <div class="span3">
+          
+        </div><!--/span-->
+        <div class="span9">
+          <div id="mainUnlockButton" class="hero-unit" style="display:none;">
+            <img id="lockimage" src="/assets/img/locked.png">
+            <span class="lockcaption">No Locks Selected</span><br /><br />
+			<span class="locktext unlocked"></span>
+		</div>
+         <div class="row-fluid">
+          <div class="span6">
+              <h2>Locks</h2>
+            <div class="well2 sidebar-nav">
+                <ul class="nav nav-list">
+          <li><div class="lockedicon"></div><a id="frontdoor" href="#" >House (Front Door)</a></li>
+                  <li><div class="lockedicon"></div><a href="#">House (Back Door)</a></li>
+                  <li><div class="lockedicon"></div><a href="#">Apartment</a></li>
+                  <li><div class="lockedicon"></div><a href="#">Office</a></li>
+                  <li><div class="lockedicon"></div><a href="#">Cottage</a></li>
+                </ul>
+            </div><!--/.well -->
+            </div><!--/span-->
+            <div class="span6">
+              <h2>My Friends</h2>
+				<div class="well sidebar-nav">
+                <ul id="friendsList" class="nav nav-list">
+                  <li class="nav-header">Friends using App</li>
+
+                  <script>
+
+                  
+
+                  </script>
+
+
+
+<!--                   <li><div class="maleicon"></div><a data-toggle="modal" href="#gModal" >Graeham Douglas</a></li>
+                  <li><div class="maleicon"></div><a href="#">Andrei Pop</a></li>
+                  <li><div class="maleicon"></div><a href="#">Vincent Chan</a></li>
+                  <li class="nav-header">Ungranted Friends</li>
+                  <li><div class="maleicon"></div><a href="#">Mark Zuckerberg</a></li>
+                  <li><div class="maleicon"></div><a href="#">Charlie Sheen</a></li>
+                  <li><div class="femaleicon"></div><a href="#">Katy Perry</a></li>
+                  <li><div class="femaleicon"></div><a href="#">Miley Cyrus</a></li>
+                  <li><div class="maleicon"></div><a href="#">Mr. Bean</a></li> -->
+                </ul>
+              	</div><!--/.well -->
+            </div><!--/span-->
+            
+            </div><!--/row-->
+        </div><!--/span-->
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <p>&copy; LockSmasher 2012</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="assets/js/jquery.js"></script>
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+<!-- 
+
+
+sample modal content 
+
+
+-->
+
+          <div id="gModal" class="modal hide fade">
+            <div class="modal-header">
+              <a class="close" data-dismiss="modal" >&times;</a>
+              <h3>Modal Heading</h3>
+            </div>
+            <div class="modal-body">
+              <h4>Text in a modal</h4>
+              <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem.</p>
+
+              <h4>Popover in a modal</h4>
+              <p>This <a href="#" class="btn popover-test" title="A Title" data-content="And here's some amazing content. It's very engaging. right?">button</a> should trigger a popover on hover.</p>
+
+              <h4>Tooltips in a modal</h4>
+              <p><a href="#" class="tooltip-test" title="Tooltip">This link</a> and <a href="#" class="tooltip-test" title="Tooltip">that link</a> should have tooltips on hover.</p>
+
+              <hr>
+
+              <h4>Overflowing text to show optional scrollbar</h4>
+              <p>We set a fixed <code>max-height</code> on the <code>.modal-body</code>. Watch it overflow with all this extra lorem ipsum text we've included.</p>
+              <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
+              <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
+              <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
+              <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
+              <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
+              <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
+            </div>
+            <div class="modal-footer">
+              <a href="#" class="btn" data-dismiss="modal" >Close</a>
+              <a href="#" class="btn btn-primary">Save changes</a>
+            </div>
+          </div>
+
+  </body>
+</html>

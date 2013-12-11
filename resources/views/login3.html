@@ -1,0 +1,11 @@
+<html>
+<head>
+<script></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="/nowjs/now.js"></script></head>
+<body>
+<div id="fb-root"></div>
+<script src="/facebook-api.js"></script>
+<button type="button" onclick="FB.login(function(response){ if (response.authResponse){ window.location = '/profile'; } else { alert('Sorry!! Try again'); } })"></button>
+</body>
+</html>
